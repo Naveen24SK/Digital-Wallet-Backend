@@ -1,0 +1,14 @@
+package com.wallet.WalletApp.dto;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+public class TransferRequest {
+    private Long senderWalletId;
+    private Long receiverWalletId;
+    private BigDecimal amount;
+}
