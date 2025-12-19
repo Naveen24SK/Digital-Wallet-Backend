@@ -1,0 +1,52 @@
+package com.wallet.WalletApp.service;
+
+import com.wallet.WalletApp.dto.LoginRequest;
+import com.wallet.WalletApp.dto.RegisterRequest;
+import com.wallet.WalletApp.entity.User;
+import com.wallet.WalletApp.entity.Wallet;
+import com.wallet.WalletApp.repository.UserRepository;
+import com.wallet.WalletApp.repository.WalletRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AuthService {
+
+    private final UserRepository userRepo;
+    private final WalletRepository walletRepo;
+
+    public AuthService(UserRepository userRepo, WalletRepository walletRepo) {
+        this.userRepo = userRepo;
+        this.walletRepo = walletRepo;
+    }
+
+    // REGISTER
+    public void register(RegisterRequest req) {
+
+        User user = new User();
+        user.setUsername(req.getUsername());
+        user.setEmail(req.getEmail());
+
+        user.setPassword(req.getPassword());
+
+        userRepo.save(user);
+
+        // CREATE WALLET FOR USER
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        walletRepo.save(wallet);
+    }
+
+    // LOGIN
+    public User login(LoginRequest req) {
+
+        User user = userRepo.findByUsername(req.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // SIMPLE PASSWORD CHECK
+        if (!req.getPassword().equals(user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return user;
+    }
+}
