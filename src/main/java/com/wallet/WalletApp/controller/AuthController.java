@@ -4,14 +4,16 @@ import com.wallet.WalletApp.dto.LoginRequest;
 import com.wallet.WalletApp.dto.RegisterRequest;
 import com.wallet.WalletApp.entity.User;
 import com.wallet.WalletApp.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
-
-
 
     private final AuthService authService;
 
@@ -20,14 +22,22 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         authService.register(request);
-        return "User registered successfully";
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody LoginRequest request) {
-        return authService.login(request);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
+        User user = authService.login(request);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("userId", user.getId());
+        response.put("username", user.getUsername());
+        response.put("email", user.getEmail());
+        response.put("token", "jwt-token-" + user.getId()); // placeholder
+
+        return ResponseEntity.ok(response);
     }
 }
-

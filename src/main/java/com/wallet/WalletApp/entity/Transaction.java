@@ -1,10 +1,6 @@
 package com.wallet.WalletApp.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -15,39 +11,79 @@ public class Transaction {
     @Id
     private String id;
 
+    private Long senderAccountId;
     private Long senderWalletId;
     private Long receiverWalletId;
+
     private BigDecimal amount;
-    private BigDecimal fee;
     private String transactionType;
     private String status;
-    private String description;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    // ===== GETTERS =====
+    public String getId() {
+        return id;
+    }
 
-    public Long getSenderWalletId() { return senderWalletId; }
-    public void setSenderWalletId(Long senderWalletId) { this.senderWalletId = senderWalletId; }
+    public Long getSenderAccountId() {
+        return senderAccountId;
+    }
 
-    public Long getReceiverWalletId() { return receiverWalletId; }
-    public void setReceiverWalletId(Long receiverWalletId) { this.receiverWalletId = receiverWalletId; }
+    public Long getSenderWalletId() {
+        return senderWalletId;
+    }
 
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public Long getReceiverWalletId() {
+        return receiverWalletId;
+    }
 
-    public BigDecimal getFee() { return fee; }
-    public void setFee(BigDecimal fee) { this.fee = fee; }
+    public BigDecimal getAmount() {
+        return amount;
+    }
 
-    public String getTransactionType() { return transactionType; }
-    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
+    public String getTransactionType() {
+        return transactionType;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getStatus() {
+        return status;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    // ===== SETTERS =====
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setSenderAccountId(Long senderAccountId) {
+        this.senderAccountId = senderAccountId;
+    }
+
+    public void setSenderWalletId(Long senderWalletId) {
+        this.senderWalletId = senderWalletId;
+    }
+
+    public void setReceiverWalletId(Long receiverWalletId) {
+        this.receiverWalletId = receiverWalletId;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

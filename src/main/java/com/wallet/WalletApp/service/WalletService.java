@@ -1,54 +1,64 @@
 package com.wallet.WalletApp.service;
 
 import com.wallet.WalletApp.dto.AddMoneyRequest;
+import com.wallet.WalletApp.entity.Account;
 import com.wallet.WalletApp.entity.Transaction;
+import com.wallet.WalletApp.entity.User;
 import com.wallet.WalletApp.entity.Wallet;
+import com.wallet.WalletApp.repository.AccountRepository;
 import com.wallet.WalletApp.repository.TransactionRepository;
 import com.wallet.WalletApp.repository.WalletRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class WalletService {
 
     private final WalletRepository walletRepo;
-    private final TransactionRepository transactionRepo;
+    private final AccountRepository accountRepo;
+    private final TransactionRepository txRepo;
 
-    public WalletService(WalletRepository walletRepo,
-                         TransactionRepository transactionRepo) {
-        this.walletRepo = walletRepo;
-        this.transactionRepo = transactionRepo;
+    public WalletService(WalletRepository w, AccountRepository a, TransactionRepository t) {
+        this.walletRepo = w;
+        this.accountRepo = a;
+        this.txRepo = t;
     }
 
-    public Wallet addMoney(AddMoneyRequest request) {
+    public Wallet createWallet(User user) {
+        Wallet w = new Wallet();
+        w.setUser(user);
+        w.setBalance(BigDecimal.ZERO);
+        return walletRepo.save(w);
+    }
 
-        // 1️⃣ Fetch wallet
-        Wallet wallet = walletRepo.findById(request.getWalletId())
-                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+    @Transactional
+    public void addMoney(Long accountId, Long walletId, BigDecimal amount) {
+        Account acc = accountRepo.findById(accountId).orElseThrow();
+        Wallet wallet = walletRepo.findById(walletId).orElseThrow();
 
-        // 2️⃣ Validate amount
-        if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Amount must be greater than zero");
-        }
+        acc.setBalance(acc.getBalance().subtract(amount));
+        wallet.setBalance(wallet.getBalance().add(amount));
 
-        // 3️⃣ Add balance
-        wallet.setBalance(wallet.getBalance().add(request.getAmount()));
+        accountRepo.save(acc);
         walletRepo.save(wallet);
 
-        // 4️⃣ Create transaction log
         Transaction tx = new Transaction();
         tx.setId(UUID.randomUUID().toString());
+        tx.setSenderAccountId(acc.getId());
         tx.setReceiverWalletId(wallet.getId());
-        tx.setAmount(request.getAmount());
+        tx.setAmount(amount);
         tx.setTransactionType("ADD");
         tx.setStatus("SUCCESS");
-        tx.setCreatedAt(LocalDateTime.now());
 
-        transactionRepo.save(tx);
+        txRepo.save(tx);
+    }
 
-        return wallet;
+    public List<Transaction> history(Long walletId) {
+        return txRepo.findBySenderWalletIdOrReceiverWalletId(walletId, walletId);
     }
 }
