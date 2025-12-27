@@ -9,81 +9,64 @@ import java.time.LocalDateTime;
 public class Transaction {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;   // 🔥 AUTO GENERATED
+
+    @Column(name = "transaction_id", unique = true, length = 20)
+    private String transactionId;
 
     private Long senderAccountId;
     private Long senderWalletId;
+    private Long receiverAccountId;
     private Long receiverWalletId;
 
+    @Column(nullable = false, precision = 38, scale = 2)
     private BigDecimal amount;
+
     private String transactionType;
-    private String status;
+    private String category = "OTHERS";
+    private String purpose;
+    private String status = "SUCCESS";
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // ===== GETTERS =====
-    public String getId() {
-        return id;
-    }
+    // getters & setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getSenderAccountId() {
-        return senderAccountId;
-    }
+    public Long getSenderAccountId() { return senderAccountId; }
+    public void setSenderAccountId(Long senderAccountId) { this.senderAccountId = senderAccountId; }
 
-    public Long getSenderWalletId() {
-        return senderWalletId;
-    }
+    public Long getSenderWalletId() { return senderWalletId; }
+    public void setSenderWalletId(Long senderWalletId) { this.senderWalletId = senderWalletId; }
 
-    public Long getReceiverWalletId() {
-        return receiverWalletId;
-    }
+    public Long getReceiverAccountId() { return receiverAccountId; }
+    public void setReceiverAccountId(Long receiverAccountId) { this.receiverAccountId = receiverAccountId; }
 
-    public BigDecimal getAmount() {
-        return amount;
-    }
+    public Long getReceiverWalletId() { return receiverWalletId; }
+    public void setReceiverWalletId(Long receiverWalletId) { this.receiverWalletId = receiverWalletId; }
 
-    public String getTransactionType() {
-        return transactionType;
-    }
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
-    public String getStatus() {
-        return status;
-    }
+    public String getTransactionType() { return transactionType; }
+    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    // ===== SETTERS =====
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getPurpose() { return purpose; }
+    public void setPurpose(String purpose) { this.purpose = purpose; }
 
-    public void setSenderAccountId(Long senderAccountId) {
-        this.senderAccountId = senderAccountId;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void setSenderWalletId(Long senderWalletId) {
-        this.senderWalletId = senderWalletId;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public void setReceiverWalletId(Long receiverWalletId) {
-        this.receiverWalletId = receiverWalletId;
+    public void setTransactionId(String txId) {
+        this.transactionId = txId;
     }
+    public String getTransactionId(){ return transactionId;}
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public void setTransactionType(String transactionType) {
-        this.transactionType = transactionType;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }

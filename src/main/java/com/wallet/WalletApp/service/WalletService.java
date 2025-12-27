@@ -1,6 +1,7 @@
 package com.wallet.WalletApp.service;
 
 import com.wallet.WalletApp.dto.AddMoneyRequest;
+import com.wallet.WalletApp.dto.SendMoneyRequest;
 import com.wallet.WalletApp.entity.Account;
 import com.wallet.WalletApp.entity.Transaction;
 import com.wallet.WalletApp.entity.User;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+//import java.util.UUID;
 
 @Service
 public class WalletService {
@@ -37,24 +38,77 @@ public class WalletService {
     }
 
     @Transactional
-    public void addMoney(Long accountId, Long walletId, BigDecimal amount) {
-        Account acc = accountRepo.findById(accountId).orElseThrow();
-        Wallet wallet = walletRepo.findById(walletId).orElseThrow();
+    public Wallet addMoney(AddMoneyRequest req) {
 
-        acc.setBalance(acc.getBalance().subtract(amount));
-        wallet.setBalance(wallet.getBalance().add(amount));
+        Account acc = accountRepo.findById(req.getAccountId())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        Wallet wallet = walletRepo.findById(req.getWalletId())
+                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+
+        if (acc.getBalance().compareTo(req.getAmount()) < 0) {
+            throw new RuntimeException("Insufficient account balance");
+        }
+
+        // balances
+        acc.setBalance(acc.getBalance().subtract(req.getAmount()));
+        wallet.setBalance(wallet.getBalance().add(req.getAmount()));
 
         accountRepo.save(acc);
         walletRepo.save(wallet);
 
+        // 1️⃣ Save transaction FIRST to get ID
         Transaction tx = new Transaction();
-        tx.setId(UUID.randomUUID().toString());
         tx.setSenderAccountId(acc.getId());
         tx.setReceiverWalletId(wallet.getId());
-        tx.setAmount(amount);
-        tx.setTransactionType("ADD");
+        tx.setAmount(req.getAmount());
+        tx.setTransactionType("ADD_MONEY");
         tx.setStatus("SUCCESS");
 
+        tx = txRepo.save(tx); // 🔥 DB generates numeric ID
+
+        // 2️⃣ Generate readable transaction ID
+        String txId = "TID" + String.format("%07d", tx.getId());
+        tx.setTransactionId(txId);
+
+        txRepo.save(tx); // update with readable ID
+
+        return wallet;
+    }
+
+    @Transactional
+    public void sendMoney(SendMoneyRequest req) {
+
+        Wallet sender = walletRepo.findById(req.getSenderWalletId())
+                .orElseThrow(() -> new RuntimeException("Sender wallet not found"));
+
+        Account receiverAcc = accountRepo
+                .findByAccountNumber(req.getReceiverAccountNumber())
+                .orElseThrow(() -> new RuntimeException("Receiver not found"));
+
+        Wallet receiverWallet = walletRepo.findByUser(receiverAcc.getUser())
+                .orElseThrow(() -> new RuntimeException("Receiver wallet not found"));
+
+        if (sender.getBalance().compareTo(req.getAmount()) < 0) {
+            throw new RuntimeException("Insufficient wallet balance");
+        }
+
+        sender.setBalance(sender.getBalance().subtract(req.getAmount()));
+        receiverWallet.setBalance(receiverWallet.getBalance().add(req.getAmount()));
+
+        walletRepo.save(sender);
+        walletRepo.save(receiverWallet);
+
+        Transaction tx = new Transaction();
+        tx.setSenderWalletId(sender.getId());
+        tx.setReceiverWalletId(receiverWallet.getId());
+        tx.setAmount(req.getAmount());
+        tx.setTransactionType("SEND_MONEY");
+        tx.setCategory(req.getCategory());
+        tx.setPurpose(req.getPurpose());
+
+        tx = txRepo.save(tx);
+        tx.setTransactionId("TID" + String.format("%07d", tx.getId()));
         txRepo.save(tx);
     }
 

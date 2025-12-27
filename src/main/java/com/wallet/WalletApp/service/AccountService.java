@@ -25,10 +25,20 @@ public class AccountService {
         Account acc = new Account();
         acc.setUser(user);
         acc.setAccountHolderName(holderName);
-        acc.setAccountNumber("AC" + System.currentTimeMillis());
-        acc.setBalance(new BigDecimal("10000")); // mock bank money
+        acc.setBalance(new BigDecimal("1000"));
         acc.setStatus("ACTIVE");
 
+// 🔹 FIRST SAVE → DB generates ID
+        acc = accountRepo.save(acc);
+
+// 🔹 NOW ID IS AVAILABLE
+        Long accountId = acc.getId();   // ✅ SAFE
+        String accountNumber = "AC" + (10000 + accountId);
+
+        acc.setAccountNumber(accountNumber);
+
+// 🔹 SECOND SAVE → updates account_number
         return accountRepo.save(acc);
+
     }
 }
