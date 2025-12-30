@@ -79,40 +79,52 @@ public class WalletService {
     @Transactional
     public void sendMoney(SendMoneyRequest req) {
 
-        Wallet sender = walletRepo.findById(req.getSenderWalletId())
+        Wallet senderWallet = walletRepo.findById(req.getSenderWalletId())
                 .orElseThrow(() -> new RuntimeException("Sender wallet not found"));
 
-        Account receiverAcc = accountRepo
+        Account receiverAccount = accountRepo
                 .findByAccountNumber(req.getReceiverAccountNumber())
-                .orElseThrow(() -> new RuntimeException("Receiver not found"));
+                .orElseThrow(() -> new RuntimeException("Receiver account not found"));
 
-        Wallet receiverWallet = walletRepo.findByUser(receiverAcc.getUser())
-                .orElseThrow(() -> new RuntimeException("Receiver wallet not found"));
+        // ❌ Prevent self-transfer
+        if (senderWallet.getUser().getId().equals(receiverAccount.getUser().getId())) {
+            throw new RuntimeException("You cannot send money to your own account");
+        }
 
-        if (sender.getBalance().compareTo(req.getAmount()) < 0) {
+        // ❌ Insufficient balance
+        if (senderWallet.getBalance().compareTo(req.getAmount()) < 0) {
             throw new RuntimeException("Insufficient wallet balance");
         }
 
-        sender.setBalance(sender.getBalance().subtract(req.getAmount()));
-        receiverWallet.setBalance(receiverWallet.getBalance().add(req.getAmount()));
+        // ✅ Wallet → Account transfer
+        senderWallet.setBalance(senderWallet.getBalance().subtract(req.getAmount()));
+        receiverAccount.setBalance(receiverAccount.getBalance().add(req.getAmount()));
 
-        walletRepo.save(sender);
-        walletRepo.save(receiverWallet);
+        walletRepo.save(senderWallet);
+        accountRepo.save(receiverAccount);
 
+        // ✅ Transaction record
         Transaction tx = new Transaction();
-        tx.setSenderWalletId(sender.getId());
-        tx.setReceiverWalletId(receiverWallet.getId());
+        tx.setSenderWalletId(senderWallet.getId());
+        tx.setReceiverAccountId(receiverAccount.getId());
         tx.setAmount(req.getAmount());
         tx.setTransactionType("SEND_MONEY");
         tx.setCategory(req.getCategory());
         tx.setPurpose(req.getPurpose());
+        tx.setStatus("SUCCESS");
 
         tx = txRepo.save(tx);
         tx.setTransactionId("TID" + String.format("%07d", tx.getId()));
         txRepo.save(tx);
     }
 
+
+
+//    public List<Transaction> history(Long walletId) {
+//    }
+
     public List<Transaction> history(Long walletId) {
         return txRepo.findBySenderWalletIdOrReceiverWalletId(walletId, walletId);
     }
+
 }

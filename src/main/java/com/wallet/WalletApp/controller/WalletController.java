@@ -7,11 +7,15 @@ import com.wallet.WalletApp.entity.Transaction;
 import com.wallet.WalletApp.entity.Wallet;
 import com.wallet.WalletApp.repository.UserRepository;
 import com.wallet.WalletApp.repository.WalletRepository;
+import com.wallet.WalletApp.service.TransactionAnalyticsService;
+import com.wallet.WalletApp.dto.SpendingCategory;
+
 import com.wallet.WalletApp.service.WalletService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,14 +28,22 @@ public class WalletController {
     private final WalletService walletService;
     private final WalletRepository walletRepo;
     private final UserRepository userRepo;
+    private final TransactionAnalyticsService analyticsService;
 
-    public WalletController(WalletService walletService,
-                            WalletRepository walletRepo,
-                            UserRepository userRepo) {
+
+    public WalletController(
+            WalletService walletService,
+            WalletRepository walletRepo,
+            UserRepository userRepo,
+            TransactionAnalyticsService analyticsService
+    ) {
         this.walletService = walletService;
         this.walletRepo = walletRepo;
         this.userRepo = userRepo;
+        this.analyticsService = analyticsService;
     }
+
+
 
     // CREATE WALLET
     @PostMapping("/create/{userId}")
@@ -62,7 +74,7 @@ public class WalletController {
     }
 
 
-    // TRANSACTION HISTORY
+//     TRANSACTION HISTORY
     @GetMapping("/history/{walletId}")
     public List<Transaction> history(@PathVariable Long walletId) {
         return walletService.history(walletId);
@@ -79,5 +91,42 @@ public class WalletController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+//    @GetMapping("/analytics/{walletId}")
+//    public Map<String, Object> getAnalytics(@PathVariable Long walletId,
+//                                            @RequestParam(defaultValue = "week") String period) {
+//        Map<String, Object> analytics = new HashMap<>();
+//        analytics.put("categories", analyticsService.getSpendingByCategory(walletId, period));
+//        analytics.put("periodData", analyticsService.getSpendingByPeriod(walletId, period));
+//        return analytics;
+//    }
+
+    @GetMapping("/analytics/{walletId}")
+    public Map<String, Object> getAnalytics(
+            @PathVariable Long walletId,
+            @RequestParam(defaultValue = "week") String period
+    ) {
+        Map<String, Object> analytics = new HashMap<>();
+
+        var categories = analyticsService.getSpendingByCategory(walletId, period);
+        var daily = analyticsService.getSpendingByPeriod(walletId, period);
+
+        BigDecimal totalSpent = categories.stream()
+                .map(SpendingCategory::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        String topCategory = categories.stream()
+                .max((a, b) -> a.getAmount().compareTo(b.getAmount()))
+                .map(SpendingCategory::getCategory)
+                .orElse("N/A");
+
+
+        analytics.put("categories", categories);
+        analytics.put("periodData", daily);
+        analytics.put("totalSpent", totalSpent);
+        analytics.put("transactionCount", daily.size());
+        analytics.put("topCategory", topCategory);
+
+        return analytics;
+    }
 
 }

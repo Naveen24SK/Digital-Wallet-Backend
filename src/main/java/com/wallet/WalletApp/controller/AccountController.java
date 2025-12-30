@@ -50,5 +50,16 @@ public class AccountController {
 
         return accountService.createAccount(userId, name);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchAccount(
+            @RequestParam String accountNumber,
+            @RequestParam String accountHolder
+    ) {
+        return accountRepository
+                .findByAccountNumberAndAccountHolderNameIgnoreCase(accountNumber, accountHolder)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
 
