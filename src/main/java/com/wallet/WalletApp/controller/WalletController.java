@@ -3,7 +3,7 @@ package com.wallet.WalletApp.controller;
 import com.wallet.WalletApp.dto.AddMoneyRequest;
 import com.wallet.WalletApp.dto.SendMoneyRequest;
 import com.wallet.WalletApp.entity.User;
-import com.wallet.WalletApp.entity.Transaction;
+//import com.wallet.WalletApp.entity.Transaction;
 import com.wallet.WalletApp.entity.Wallet;
 import com.wallet.WalletApp.repository.UserRepository;
 import com.wallet.WalletApp.repository.WalletRepository;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
+//import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -42,8 +42,6 @@ public class WalletController {
         this.userRepo = userRepo;
         this.analyticsService = analyticsService;
     }
-
-
 
     // CREATE WALLET
     @PostMapping("/create/{userId}")
@@ -73,12 +71,11 @@ public class WalletController {
         }
     }
 
-
 //     TRANSACTION HISTORY
-    @GetMapping("/history/{walletId}")
-    public List<Transaction> history(@PathVariable Long walletId) {
-        return walletService.history(walletId);
-    }
+//    @GetMapping("/history/{walletId}")
+//    public List<Transaction> history(@PathVariable Long walletId) {
+//        return walletService.history(walletId);
+//    }
 
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<?> getWalletByUser(@PathVariable Long userId) {
