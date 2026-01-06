@@ -127,4 +127,16 @@ public class WalletService {
         return txRepo.findBySenderWalletIdOrReceiverWalletId(walletId, walletId);
     }
 
+    public Wallet updateMinBalance(Long walletId, BigDecimal minBalance) {
+
+        Wallet wallet = walletRepo.findById(walletId)
+                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+
+        wallet.setMinBalance(minBalance);
+        wallet.setAlertSent(false); // reset alert if user updates threshold
+
+        return walletRepo.save(wallet);
+    }
+
+
 }

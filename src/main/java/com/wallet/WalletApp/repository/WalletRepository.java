@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
     Optional<Wallet> findByUser(User user);
-    List<Wallet> findAllByBalanceLessThan(BigDecimal balance);
+    List<Wallet> findByBalanceLessThanAndAlertSentFalse(BigDecimal balance);
 
 
 }

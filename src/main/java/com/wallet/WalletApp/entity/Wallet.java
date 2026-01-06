@@ -16,6 +16,9 @@ public class Wallet {
     private User user;
 
     private BigDecimal balance = BigDecimal.ZERO;
+    private BigDecimal minBalance = BigDecimal.ZERO;
+    private boolean alertSent = false;
+
 
     // GETTERS & SETTERS
     public Long getId() {
@@ -41,4 +44,22 @@ public class Wallet {
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
+
+    public BigDecimal getMinBalance() {
+        return minBalance;
+    }
+
+    public void setMinBalance(BigDecimal minBalance) {
+        this.minBalance=minBalance;
+    }
+
+    public boolean isAlertSent() {
+        return alertSent;
+    }
+
+    public void setAlertSent(boolean alertSent) {
+        this.alertSent = alertSent;
+    }
+
+
 }

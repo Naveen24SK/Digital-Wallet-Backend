@@ -1,6 +1,7 @@
 package com.wallet.WalletApp.controller;
 
 import com.wallet.WalletApp.dto.AddMoneyRequest;
+import com.wallet.WalletApp.dto.MinBalanceRequest;
 import com.wallet.WalletApp.dto.SendMoneyRequest;
 import com.wallet.WalletApp.entity.User;
 //import com.wallet.WalletApp.entity.Transaction;
@@ -125,5 +126,15 @@ public class WalletController {
 
         return analytics;
     }
+
+
+    @PutMapping("/{walletId}/min-balance")
+    public Wallet updateMinBalance(
+            @PathVariable Long walletId,
+            @RequestBody MinBalanceRequest req
+    ) {
+        return walletService.updateMinBalance(walletId, req.getMinBalance());
+    }
+
 
 }

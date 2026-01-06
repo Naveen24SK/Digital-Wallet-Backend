@@ -17,35 +17,28 @@ public class LowBalanceAlertService {
 
     private final WalletRepository walletRepo;
     private final EmailService emailService;
-    private final UserRepository userRepo;
 
-    public LowBalanceAlertService(
-            WalletRepository walletRepo,
-            EmailService emailService,
-            UserRepository userRepo
-    ) {
+    public LowBalanceAlertService(WalletRepository walletRepo, EmailService emailService) {
         this.walletRepo = walletRepo;
         this.emailService = emailService;
-        this.userRepo = userRepo;
     }
 
-    @Value("${app.wallet.min-balance:100.0}")
-    private BigDecimal minBalance;
-
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // every 12 hrs
     @Transactional
-    public void checkLowBalances() {
-
-        List<Wallet> wallets =
-                walletRepo.findAllByBalanceLessThan(minBalance);
+    public void checkLowBalance() {
+        List<Wallet> wallets = walletRepo.findAll();
 
         for (Wallet wallet : wallets) {
-            User user = wallet.getUser();
 
-            if (!user.isAlertSent()) {
-                emailService.sendLowBalanceAlert(user, wallet);
-                user.setAlertSent(true);
-                userRepo.save(user);
+            if (wallet.getMinBalance().compareTo(BigDecimal.ZERO) <= 0) continue;
+
+            if (wallet.getBalance().compareTo(wallet.getMinBalance()) < 0 && !wallet.isAlertSent()) {
+                emailService.sendLowBalanceAlert(wallet.getUser(), wallet);
+                wallet.setAlertSent(true);
+            }
+
+            if (wallet.getBalance().compareTo(wallet.getMinBalance()) >= 0) {
+                wallet.setAlertSent(false);
             }
         }
     }
