@@ -1,0 +1,31 @@
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: wallet-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wallet_db
+      MYSQL_USER: wallet
+      MYSQL_PASSWORD: wallet
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: wallet-app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/wallet_db
+      SPRING_DATASOURCE_USERNAME: wallet
+      SPRING_DATASOURCE_PASSWORD: wallet
+
+volumes:
+  mysql_data:
