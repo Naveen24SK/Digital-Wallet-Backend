@@ -22,7 +22,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/wallet")
-//@CrossOrigin(origins = "http://localhost:5173")
 
 public class WalletController {
 
