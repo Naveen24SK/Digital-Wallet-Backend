@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/wallet")
-@CrossOrigin(origins = "https://digitalwallet-beige.vercel.app")
 
 public class TransactionController {
 

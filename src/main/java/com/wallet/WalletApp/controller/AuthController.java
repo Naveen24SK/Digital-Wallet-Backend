@@ -12,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "https://digitalwallet-beige.vercel.app")
 
 public class AuthController {
 
