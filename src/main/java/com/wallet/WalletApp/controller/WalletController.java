@@ -22,6 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/wallet")
+@CrossOrigin(origins = "https://digitalwallet-beige.vercel.app")
 
 public class WalletController {
 
