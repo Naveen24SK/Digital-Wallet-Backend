@@ -6,7 +6,9 @@ import com.wallet.WalletApp.entity.User;
 import com.wallet.WalletApp.entity.Wallet;
 import com.wallet.WalletApp.repository.UserRepository;
 import com.wallet.WalletApp.repository.WalletRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AuthService {
@@ -40,13 +42,21 @@ public class AuthService {
     public User login(LoginRequest req) {
 
         User user = userRepo.findByUsername(req.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.UNAUTHORIZED,
+                                "User not found"
+                        )
+                );
 
-        // SIMPLE PASSWORD CHECK
         if (!req.getPassword().equals(user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Invalid password"
+            );
         }
 
         return user;
     }
+
 }
