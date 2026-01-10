@@ -24,19 +24,22 @@ public class AuthService {
     // REGISTER
     public void register(RegisterRequest req) {
 
+        if (userRepo.findByUsername(req.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
+
         User user = new User();
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
-
         user.setPassword(req.getPassword());
 
         userRepo.save(user);
 
-        // CREATE WALLET FOR USER
         Wallet wallet = new Wallet();
         wallet.setUser(user);
         walletRepo.save(wallet);
     }
+
 
     // LOGIN
     public User login(LoginRequest req) {
