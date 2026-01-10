@@ -32,6 +32,7 @@ public class AuthService {
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
         user.setPassword(req.getPassword());
+        user.setAlertSent(false); // ✅ IMPORTANT
 
         userRepo.save(user);
 
@@ -39,6 +40,7 @@ public class AuthService {
         wallet.setUser(user);
         walletRepo.save(wallet);
     }
+
 
 
     // LOGIN

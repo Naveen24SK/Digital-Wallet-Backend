@@ -36,7 +36,6 @@ public class AuthController {
         response.put("userId", user.getId());
         response.put("username", user.getUsername());
         response.put("email", user.getEmail());
-        response.put("token", "jwt-token-" + user.getId()); // placeholder
 
         return ResponseEntity.ok(response);
     }

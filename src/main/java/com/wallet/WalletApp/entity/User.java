@@ -19,16 +19,21 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "alert_sent")
-    private boolean alertSent = false;
+    @Column(name = "alert_sent", nullable = false)
+    private Boolean alertSent = false;
 
     public boolean isAlertSent() {
         return alertSent;
     }
 
-    public void setAlertSent(boolean alertSent) {
+    public Boolean getAlertSent() {
+        return alertSent;
+    }
+
+    public void setAlertSent(Boolean alertSent) {
         this.alertSent = alertSent;
     }
+
 
     // GETTERS & SETTERS
     public Long getId() {
